@@ -1,0 +1,189 @@
+import java.util.*;
+
+public class Bank {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        HashMap<String, String> userAccounts = new HashMap<>();
+        HashMap<String, String> adminAccounts = new HashMap<>();
+        HashMap<String, Double> accountBalances = new HashMap<>();
+        HashMap<String, String> moneyTransfers = new HashMap<>();
+
+        adminAccounts.put("Abishek04", "12345678");
+        adminAccounts.put("Archana", "87654321");
+
+        while (true) {
+            System.out.println("ARE YOU A: USER/ADMIN");
+            String userType = sc.nextLine();
+
+            if (userType.equalsIgnoreCase("USER")) {
+                System.out.println("ARE YOU A: NEW USER/EXISTING USER");
+                String userOption = sc.nextLine();
+
+                if (userOption.equalsIgnoreCase("NEW USER")) {
+                    System.out.println("ENTER THE BANK NAME YOU WANT TO CREATE AN ACCOUNT: ");
+                    System.out.println("LIST OF BANKS:");
+                    System.out.println("1. SBI");
+                    System.out.println("2. HDFC");
+                    System.out.println("3. AXIS");
+                    int bankChoice = sc.nextInt();
+                    sc.nextLine();
+
+                    String bankName;
+                    switch (bankChoice) {
+                        case 1:
+                            bankName = "SBI";
+                            break;
+                        case 2:
+                            bankName = "HDFC";
+                            break;
+                        case 3:
+                            bankName = "AXIS";
+                            break;
+                        default:
+                            System.out.println("Invalid bank choice.");
+                            continue;
+                    }
+
+                    System.out.println("Enter your Age: ");
+                    int age = sc.nextInt();
+                    sc.nextLine();
+
+                    if (age < 18) {
+                        System.out.println("YOU ARE NOT ELIGIBLE");
+                        continue;
+                    }
+
+                    System.out.println("Enter your DOB: ");
+                    String dob = sc.nextLine();
+                    System.out.println("Enter a Username: ");
+                    String username = sc.nextLine();
+
+                    if (username.length() < 6) {
+                        System.out.println("Username length must be equal to or greater than 6.");
+                        continue;
+                    }
+
+                    System.out.println("Enter a Password: ");
+                    String password = sc.nextLine();
+
+                    if (password.length() < 8) {
+                        System.out.println("Password length must be equal to or greater than 8.");
+                        continue;
+                    }
+
+                    userAccounts.put(username, password);
+                    accountBalances.put(username, 0.0);
+                    System.out.println("Account created successfully!");
+
+                } else if (userOption.equalsIgnoreCase("EXISTING USER")) {
+                    System.out.println("Enter your Username: ");
+                    String username = sc.nextLine();
+                    System.out.println("Enter your Password: ");
+                    String password = sc.nextLine();
+
+                    if (userAccounts.containsKey(username) && userAccounts.get(username).equals(password)) {
+                        System.out.println("Login successful!");
+                        while (true) {
+                            System.out.println("Select an option:");
+                            System.out.println("1. Withdrawal");
+                            System.out.println("2. Deposit");
+                            System.out.println("3. Money Transfer to other account");
+                            System.out.println("4. PIN Change");
+                            System.out.println("5. Exit");
+
+                            int option = sc.nextInt();
+                            sc.nextLine();
+                            switch (option) {
+                                case 1:
+                                    System.out.println("Enter amount to withdraw:");
+                                    double withdrawalAmount = sc.nextDouble();
+                                    if (withdrawalAmount <= accountBalances.get(username)) {
+                                        accountBalances.put(username, accountBalances.get(username) - withdrawalAmount);
+                                        System.out.println("Withdrawal successful.");
+                                    } else {
+                                        System.out.println("Insufficient balance.");
+                                    }
+                                    break;
+                                case 2:
+                                    System.out.println("Enter amount to deposit:");
+                                    double depositAmount = sc.nextDouble();
+                                    accountBalances.put(username, accountBalances.get(username) + depositAmount);
+                                    System.out.println("Deposit successful.");
+                                    break;
+                                case 3:
+                                    System.out.println("Enter recipient's username:");
+                                    String recipient = sc.nextLine();
+                                    System.out.println("Enter amount to transfer:");
+                                    double transferAmount = sc.nextDouble();
+                                    if (accountBalances.containsKey(recipient)) {
+                                        if (!recipient.equals(username)) {
+                                            if (transferAmount <= accountBalances.get(username)) {
+                                                accountBalances.put(username,
+                                                        accountBalances.get(username) - transferAmount);
+                                                accountBalances.put(recipient,
+                                                        accountBalances.get(recipient) + transferAmount);
+                                                moneyTransfers.put(username + " to " + recipient,
+                                                        String.valueOf(transferAmount));
+                                                System.out.println("Money transferred successfully.");
+                                            } else {
+                                                System.out.println("Insufficient balance.");
+                                            }
+                                        } else {
+                                            System.out.println("You cannot transfer money to yourself.");
+                                        }
+                                    } else {
+                                        System.out.println("Recipient not found.");
+                                    }
+                                    break;
+                                case 4:
+                                    System.out.println("Enter new PIN:");
+                                    String newPIN = sc.nextLine();
+                                    userAccounts.put(username, newPIN);
+                                    System.out.println("PIN changed successfully.");
+                                    break;
+                                case 5:
+                                    break;
+                                default:
+                                    System.out.println("Invalid option.");
+                            }
+
+                            if (option == 5) {
+                                break;
+                            }
+                        }
+                    } else {
+                        System.out.println("Invalid username or password.");
+                    }
+                } else {
+                    System.out.println("Invalid option.");
+                }
+            } else if (userType.equalsIgnoreCase("ADMIN")) {
+                System.out.println("Enter your Username: ");
+                String adminUsername = sc.nextLine();
+                System.out.println("Enter your Password: ");
+                String adminPassword = sc.nextLine();
+
+                if (adminAccounts.containsKey(adminUsername)
+                        && adminAccounts.get(adminUsername).equals(adminPassword)) {
+                    System.out.println("Admin login successful!");
+                    System.out.println("Money transfers:");
+                    for (Map.Entry<String, String> entry : moneyTransfers.entrySet()) {
+                        System.out.println(entry.getKey() + ": " + entry.getValue());
+                    }
+                } else {
+                    System.out.println("Wrong access.");
+                }
+            } else {
+                System.out.println("Invalid option.");
+            }
+
+            System.out.println("Do you want to continue? (YES/NO)");
+            String continueOption = sc.nextLine();
+            if (!continueOption.equalsIgnoreCase("YES")) {
+                break;
+            }
+        }
+
+        sc.close();
+    }
+}
